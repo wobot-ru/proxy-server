@@ -90,3 +90,6 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 
+#Server logs
+proxy-server.log
+proxy-server.iml
