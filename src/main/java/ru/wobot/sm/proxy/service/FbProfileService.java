@@ -15,9 +15,6 @@ public class FbProfileService implements ProfileService {
     public static final String FACEBOOK_URI = "https://www.facebook.com";
 
     @Autowired
-    HazelcastInstance hazelcastInstance;
-
-    @Autowired
     public FbProfileService(UriResolver resolver, Fetcher fetcher) {
         this.resolver = resolver;
         this.fetcher = fetcher;

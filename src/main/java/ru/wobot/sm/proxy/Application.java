@@ -1,9 +1,11 @@
 package ru.wobot.sm.proxy;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,22 +13,21 @@ import org.springframework.boot.context.embedded.jetty.JettyEmbeddedServletConta
 import org.springframework.boot.context.embedded.jetty.JettyServerCustomizer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
+import java.io.IOException;
+import java.util.Collection;
 
 @SpringBootApplication
 public class Application {
-    private static final Logger logger = LoggerFactory
-            .getLogger(Application.class);
-
     @Bean
-    public JettyEmbeddedServletContainerFactory jettyEmbeddedServletContainerFactory(@Value("${server.port:8888}") final String port,
-                                                                                     @Value("${jetty.threadPool.maxThreads:10}") final String maxThreads,
-                                                                                     @Value("${jetty.threadPool.minThreads:5}") final String minThreads,
-                                                                                     @Value("${jetty.threadPool.idleTimeout:60000}") final String idleTimeout) {
+    JettyEmbeddedServletContainerFactory jettyEmbeddedServletContainerFactory(@Value("${server.port:8888}") final String port,
+                                                                              @Value("${jetty.threadPool.maxThreads:10}") final String maxThreads,
+                                                                              @Value("${jetty.threadPool.minThreads:5}") final String minThreads,
+                                                                              @Value("${jetty.threadPool.idleTimeout:60000}") final String idleTimeout) {
         final JettyEmbeddedServletContainerFactory factory = new JettyEmbeddedServletContainerFactory(Integer.valueOf(port));
         factory.addServerCustomizers(new JettyServerCustomizer() {
             @Override
@@ -48,15 +49,24 @@ public class Application {
 
     @Bean
     HttpComponentsClientHttpRequestFactory getRequestFactory() {
-      return new HttpComponentsClientHttpRequestFactory();
+        return new HttpComponentsClientHttpRequestFactory();
+    }
+
+    @Bean
+    Collection<JsonNode> logins(@Autowired ObjectMapper objectMapper, @Autowired ResourceLoader resourceLoader,
+                                @Value("${wobot.cookies.file:cookies.json}") String cookiesFile) {
+        Collection<JsonNode> result;
+        try {
+            result = objectMapper.readValue(resourceLoader.getResource("classpath:" + cookiesFile).getFile(),
+                    new TypeReference<Collection<JsonNode>>() {
+                    });
+        } catch (IOException e) {
+            throw new IllegalStateException("Couldn't deserialize cookies from file provided in config.", e);
+        }
+        return result;
     }
 
     public static void main(String[] args) {
         ApplicationContext ctx = SpringApplication.run(Application.class, args);
-        String[] beanNames = ctx.getBeanDefinitionNames();
-        Arrays.sort(beanNames);
-        for (String beanName : beanNames) {
-            logger.info(beanName);
-        }
     }
 }
