@@ -21,9 +21,9 @@ public class RoundRobinSharedProxyRepository implements ProxyRepository {
         IQueue<String> queue = this.hazelcastInstance.getQueue("proxy");
 
         for (JsonNode node : logins) {
+            String proxy = node.get("proxy").get("address").asText();
             lock.lock();
             try {
-                String proxy = node.get("proxy").get("address").asText();
                 if (unique.add(proxy))
                     queue.add(proxy);
             } finally {

@@ -13,6 +13,10 @@
         <backup-count>0</backup-count>
         <max-idle-seconds>0</max-idle-seconds>
         <eviction-policy>NONE</eviction-policy>
-        <time-to-live-seconds>20</time-to-live-seconds>
+        <time-to-live-seconds>1</time-to-live-seconds>
     </map>
+
+    <properties>
+        <property name="hazelcast.logging.type">slf4j</property>
+    </properties>
 </hazelcast>

@@ -55,12 +55,12 @@ public class FbUriResolverTests {
     public void shouldReturnRealIdForUserWithPhoto() throws URISyntaxException {
         // given
         String appScopedId = "testId";
-        this.mockServer.expect(requestTo(FbUriResolver.FACEBOOK_API_URI + "/" + appScopedId + "/picture"))
+        mockServer.expect(requestTo(FbUriResolver.FACEBOOK_API_URI + "/" + appScopedId + "/picture"))
                 .andExpect(method(HttpMethod.HEAD))
                 .andRespond(withSuccess()
                         .location(new URI("https://scontent.xx.fbcdn.net/v/t1.0-1/p50x50/13319748_964300080358306_4359820039606630570_n.jpg?oh=679a22c4ca408058f19cf5fd4af88b27&oe=57C89341")));
 
-        this.mockServer.expect(requestTo(FbUriResolver.FACEBOOK_URI + "/" + "13319748_964300080358306"))
+        mockServer.expect(requestTo(FbUriResolver.FACEBOOK_URI + "/" + "13319748_964300080358306"))
                 .andExpect(method(HttpMethod.HEAD))
                 .andRespond(withSuccess()
                         .location(new URI("https://www.facebook.com/photo.php?fbid=964300080358306&set=a.110279489093707.13075.100003349701954&type=3&theater")));
@@ -70,6 +70,8 @@ public class FbUriResolverTests {
 
         // then
         assertThat(id, is("100003349701954"));
+
+        mockServer.verify();
     }
 
     @Test
@@ -95,6 +97,7 @@ public class FbUriResolverTests {
 
         // then
         assertThat(id, is("asemkin"));
+        mockServer.verify();
     }
 
     @Test
@@ -121,6 +124,7 @@ public class FbUriResolverTests {
 
         // then
         assertThat(id, is("100004451677809"));
+        mockServer.verify();
     }
 
     @Test
@@ -146,6 +150,7 @@ public class FbUriResolverTests {
 
         // then
         assertThat(id, is("renatadavidova50"));
+        mockServer.verify();
     }
 
 }

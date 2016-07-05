@@ -1,15 +1,8 @@
 package ru.wobot.sm.proxy.service.repository;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hazelcast.core.Hazelcast;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,25 +10,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-public class RoundRobinSharedFbCookieRepositoryTest {
-    ObjectMapper objectMapper = new ObjectMapper();
-    Collection<JsonNode> logins;
-
-    @Before
-    public void init() throws IOException {
-        logins = objectMapper.readValue(this.getClass().getResource("/cookies.json"), new TypeReference<Collection<JsonNode>>() {
-        });
-    }
-
-    @After
-    public void cleanup() throws Exception {
-        Hazelcast.shutdownAll();
-    }
+public class RoundRobinSharedFbCookieRepositoryTest extends SharedRepositoryTest {
 
     @Test
     public void shouldReturnCookiesFromFile() {
@@ -73,10 +54,10 @@ public class RoundRobinSharedFbCookieRepositoryTest {
         // when
         accountRepository.getCookies(proxy);
         accountRepository.getCookies(proxy);
-        Collection<HttpCookie> cookies = accountRepository.getCookies(proxy); // second cookie set
+        Collection<HttpCookie> cookies = accountRepository.getCookies(proxy); // first again
 
         // then
-        assertThat(((List<HttpCookie>) cookies).get(2).getValue(), is("100010064499022")); // user id
+        assertThat(((List<HttpCookie>) cookies).get(2).getValue(), containsString("10001")); // user id.
     }
 
     @Test
@@ -126,7 +107,23 @@ public class RoundRobinSharedFbCookieRepositoryTest {
         finish.await();
 
         // then
-        assertThat(ids.get(0), is(not(equalTo(ids.get(1)))));
+        assertThat(ids.get(0), is("100010064499022"));
+        assertThat(ids.get(1), is("100010198925638"));
     }
+
+    /*@Test
+    public void shouldNotReturnCookieAgainIfItIsNotExpired() {
+        // given
+        String proxy = "184.75.209.130:6060";
+        AccountRepository accountRepository = new RoundRobinSharedFbCookieRepository(logins, Hazelcast.newHazelcastInstance(), objectMapper);
+
+        // when
+        Collection<HttpCookie> firstCookies = accountRepository.getCookies(proxy); // first cookie set
+
+        String firstId = ((List<HttpCookie>) firstCookies).get(2).getValue();
+
+        // then
+        //assertThat(firstId, is(not(equalTo(secondId))));
+    }*/
 
 }
