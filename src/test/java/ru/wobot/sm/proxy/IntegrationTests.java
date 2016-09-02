@@ -23,22 +23,22 @@ public class IntegrationTests {
     @Autowired
     private TestRestTemplate restTemplate;
 
-    @MockBean
-    private UriResolver uriResolver;
+    /*@MockBean
+    private UriResolver uriResolver;*/
 
-    @MockBean
-    private Fetcher fetcher;
+    /*@MockBean
+    private Fetcher fetcher;*/
 
     @Before
     public void setup() {
-        given(uriResolver.resolve("appScopedId")).willReturn("realId");
-        given(fetcher.get(FbProfileService.FACEBOOK_URI + "/realId")).willReturn("Full html");
+        //given(uriResolver.resolve("appScopedId")).willReturn("realId");
+        //given(fetcher.get(FbProfileService.FACEBOOK_URI + "/100004451677809")).willReturn("Full html");
     }
 
     @Test
     public void test() throws Exception {
-        ResponseEntity<String> profile = restTemplate.getForEntity("/facebook/appScopedId", String.class);
-        assertThat(profile.getBody(), containsString("Full html"));
+        ResponseEntity<String> profile = restTemplate.getForEntity("/facebook/548469171978134", String.class);
+        assertThat(profile.getBody(), containsString("Наталья"));
     }
 
 }
