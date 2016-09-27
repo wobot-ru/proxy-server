@@ -25,8 +25,9 @@ public class ProfileController {
         return profileService.getProfile(appScopedId);
     }
 
-    @RequestMapping("/facebook/search/{query}")
-    public SearchResponse search(@PathVariable String query) {
-        return searchService.search(query);
+
+    @RequestMapping("/facebook/search/{query}/{pages}/pages/{maxHeight}/height")
+    public String search(@PathVariable String query, @PathVariable Integer pages, @PathVariable Integer maxHeight) {
+        return searchService.search(query, pages, maxHeight).getData();
     }
 }

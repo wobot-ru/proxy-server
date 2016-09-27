@@ -1,9 +1,7 @@
 package ru.wobot.sm.proxy.service.fetch;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.Cookie;
-import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
+import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +42,11 @@ public class FbFetcher implements Fetcher {
 
     @Override
     public String get(String url) {
+        return get(url, 0, 0);
+    }
+
+    @Override
+    public String get(String url, int numberOfLoadPages, int maxPageHeight) {
         ProxiedWebDriver proxiedWebDriver = threadWebDriver.get();
         WebDriver driver = proxiedWebDriver.getWebDriver();
         driver.manage().deleteAllCookies();
@@ -63,6 +66,31 @@ public class FbFetcher implements Fetcher {
         try {
             driver.findElement(By.cssSelector("div._5vf._2pie._2pip.sectionHeader")); // wait for this facebook only element
         } catch (NoSuchElementException e) {
+            logger.error("Thread: " + Thread.currentThread().getId() + "; No desired element for URL: " + currentUrl + "; Original URL: " + url);
+        }
+
+        JavascriptExecutor executor = (JavascriptExecutor) driver;
+        try {
+            int pageNumber = 0;
+            while (true) {
+                Object o = executor.executeScript("return document.body.scrollHeight;");
+                Long height = (Long) o;
+                executor.executeScript("window.scrollTo(0, document.body.scrollHeight);");
+                driver.manage().timeouts().implicitlyWait(WAIT_FOR_LOAD_TIMEOUT, TimeUnit.SECONDS);
+                logger.info("pageNumber={} height={} url={}", pageNumber, height, url);
+                try {
+                    driver.findElement(By.id("endOfResultsFooter"));
+                    logger.info("Thread: " + Thread.currentThread().getId() + "; Tag with id #endOfResultsFooter was found " + currentUrl + "; Original URL: " + url);
+                    break;
+                } catch (NoSuchElementException ex) {
+                }
+
+                if (height > maxPageHeight || pageNumber++ > numberOfLoadPages) {
+                    logger.info("Thread: " + Thread.currentThread().getId() + "; Break loading by condition(maxPageHeight=" + maxPageHeight + ", pageNumber=" + pageNumber + ")  " + currentUrl + "; Original URL: " + url);
+                    break;
+                }
+            }
+        } catch (Throwable e) {
             logger.error("Thread: " + Thread.currentThread().getId() + "; No desired element for URL: " + currentUrl + "; Original URL: " + url);
         }
 

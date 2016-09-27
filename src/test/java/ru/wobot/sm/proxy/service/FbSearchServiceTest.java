@@ -32,13 +32,13 @@ public class FbSearchServiceTest {
 
     @Test
     public void responseNotNull() throws Exception {
-        SearchResponse resp = searchService.search("теле2");
+        SearchResponse resp = searchService.search("теле2", 0 ,0);
         assertThat(resp, notNullValue());
     }
 
     @Test
     public void responseContainsPosts() throws Exception {
-        SearchResponse resp = searchService.search("теле2");
+        SearchResponse resp = searchService.search("теле2", 0 ,0);
         assertThat(resp.getPosts(), notNullValue());
     }
 
