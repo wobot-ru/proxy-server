@@ -8,10 +8,6 @@ import ru.wobot.sm.proxy.service.fetch.Fetcher;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @Service
 public class FbSearchService implements SearchService {
@@ -27,15 +23,13 @@ public class FbSearchService implements SearchService {
     @Override
     public SearchResponse search(String query, int numberOfLoadPages, int maxPageHeight) {
         try {
-            String baseUrl = FACEBOOK_URI_PREFIX + URLEncoder.encode(query, "UTF-8") + FACEBOOK_URI_SUFFIX;
+            String baseUrl = FACEBOOK_URI_PREFIX + URLEncoder.encode(query, "UTF-8").replace('+', ' ');
             String data = fetcher.get(baseUrl, numberOfLoadPages, maxPageHeight);
 
 //            Path file = Paths.get("c:\\tmp\\search_big.txt");
 //            Files.write(file, data.getBytes(Charset.forName("UTF-8")));
 
             return new SearchResponse(data, null);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

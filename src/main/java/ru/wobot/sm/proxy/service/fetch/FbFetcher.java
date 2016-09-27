@@ -1,7 +1,6 @@
 package ru.wobot.sm.proxy.service.fetch;
 
 import org.openqa.selenium.*;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
