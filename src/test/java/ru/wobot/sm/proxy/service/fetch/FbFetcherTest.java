@@ -6,6 +6,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import ru.wobot.sm.proxy.driver.ProxiedWebDriver;
@@ -13,7 +14,6 @@ import ru.wobot.sm.proxy.service.repository.AccountRepository;
 import ru.wobot.sm.proxy.service.repository.WebDriverRepository;
 
 import java.net.HttpCookie;
-import java.util.Arrays;
 import java.util.Collections;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -36,13 +36,16 @@ public class FbFetcherTest {
         MockitoAnnotations.initMocks(this);
 
         ProxiedWebDriver proxiedWebDriver = mock(ProxiedWebDriver.class);
-        WebDriver webDriver = mock(WebDriver.class, Mockito.RETURNS_MOCKS);
+        WebDriver webDriver = mock(WebDriver.class, Mockito.withSettings().extraInterfaces(JavascriptExecutor.class));
         WebElement mockElement = mock(WebElement.class);
+        WebDriver.Options webDriverOptions = mock(WebDriver.Options.class);
 
         given(webDriverRepository.getDriver()).willReturn(proxiedWebDriver);
         given(proxiedWebDriver.getProxy()).willReturn("184.75.209.130:6060");
         given(proxiedWebDriver.getWebDriver()).willReturn(webDriver);
         given(webDriver.findElement(any(By.class))).willReturn(mockElement);
+        given(webDriver.manage()).willReturn(webDriverOptions);
+        given(webDriverOptions.timeouts()).willReturn(mock(WebDriver.Timeouts.class));
         given(mockElement.getAttribute("innerHTML")).willReturn("Valid html");
         given(accountRepository.getCookies("184.75.209.130:6060")).willReturn(Collections.singletonList(new HttpCookie("test", "test")));
 

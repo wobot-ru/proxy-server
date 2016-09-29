@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.wobot.sm.proxy.domain.SearchResponse;
 import ru.wobot.sm.proxy.service.SearchService;
 import ru.wobot.sm.proxy.domain.Profile;
 import ru.wobot.sm.proxy.service.ProfileService;
@@ -26,8 +25,8 @@ public class ProfileController {
     }
 
 
-    @RequestMapping("/facebook/search/{query}/{pages}/pages/{maxHeight}/height")
+    @RequestMapping("/facebook/search/latest/{query}/{pages}/pages/{maxHeight}/height")
     public String search(@PathVariable String query, @PathVariable Integer pages, @PathVariable Integer maxHeight) {
-        return searchService.search(query, pages, maxHeight).getData();
+        return searchService.getLatest(query, pages, maxHeight);
     }
 }
